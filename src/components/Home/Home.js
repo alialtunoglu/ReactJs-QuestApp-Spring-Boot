@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { makeStyles } from '@mui/styles';
 import Post from '../Post/Post';
-import Container from '@mui/material/Container';
+import PostForm from "../Post/PostForm";
 
 const useStyles = makeStyles({
     container: {
@@ -9,11 +9,8 @@ const useStyles = makeStyles({
         flexWrap: "wrap",
         justifyContent : "center",
         alignItems : "center",
-        backgroundColor: '#f0f5ff',    
-        height: '100vh',
-        padding: 5
-    },
-    post: {
+        backgroundColor: '#f0f5ff',
+        
     }
 });
 
@@ -23,20 +20,24 @@ function Home() {
     const [isLoaded, setIsLoaded] = useState(false);
     const [postList, setPostList] = useState([]);
 
-    useEffect(() => {
+    const refreshPosts = () => {
         fetch("/posts")
-            .then(res => res.json())
-            .then(
-                (result) => {
-                    setIsLoaded(true);
-                    setPostList(result);
-                },
-                (error) => {
-                    setIsLoaded(true);
-                    setError(error);
-                }
-            )
-    }, [])
+        .then(res => res.json())
+        .then(
+            (result) => {
+                setIsLoaded(true);
+                setPostList(result);
+            },
+            (error) => {
+                setIsLoaded(true);
+                setError(error);
+            }
+        )
+    }
+
+    useEffect(() => {
+        refreshPosts()
+    }, [postList])
 
     if (error) {
         return <div>Error !!!</div>;
@@ -44,13 +45,12 @@ function Home() {
         return <div>Loading... </div>;
     } else {
         return (
-            <Container fixed className={classes.container}>
+            <div className={classes.container}>
+                <PostForm userId={1} userName={"alialtunoglu"} refreshPosts= {refreshPosts} />
                 {postList.map(post => (
-                    
-                        <Post userId={post.userId} userName={post.userName} title={post.title} text={post.text}></Post>
-                    
+                    <Post likes = {post.postLikes} postId = {post.id} userId={post.userId} userName={post.userName} title={post.title} text={post.text}></Post>
                 ))}
-            </Container>
+            </div>
         );
     }
 }
